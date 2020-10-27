@@ -76,19 +76,15 @@ There were `r nrow(nyc[nyc$carrier == "UA" & nyc$day == 12 & nyc$month == 1,  ])
 Lets focus on Arrival Delay.
 
 - What was the average arrival delay for all airports and all airlines combined in Jan 2013? 
-```{r}
-mean(nyc$arr_delay, na.rm = TRUE)
-```
 
+The average arrival delay is `r round(mean(nyc$arr_delay[nyc$month == 1], na.rm = TRUE), 2)` minutes.
 
 - Whats was the median arrival delay for all airports and all airlines combined in Jan 2013?
 
-```{r}
-median(nyc$arr_delay, na.rm = TRUE)
-```
-
+The median arrival delay is `r median(nyc$arr_delay[nyc$month == 1], na.rm = TRUE)` minutes.
 
 Based on your answers to the two questions above, what can you say about the distribution of arrival delays? Provide your answer in a text paragraph form.
+
 - You can tell that the distribution is skewed right since the mean is larger than the median. It is not a symmetrical distribution.
 
 ### Airline Performance
@@ -111,21 +107,59 @@ barplot(sort(AvgArrDelay, decreasing = TRUE))
 
 
 - Which airline has the highest average arrival delay? Which airline has the smallest average arrival delay? Are there airlines that actually have negative average delay? Provide answer to this question in a text paragraph form using **inline R code**.
-The airline with the highest average arrival delay is 
+
+The airline with the highest average arrival delay is `r names(AvgArrDelay[AvgArrDelay == max(AvgArrDelay)])`. The airline with the smallest average arrival delay is `r names(AvgArrDelay[AvgArrDelay == min(AvgArrDelay)])`. The airlines with negative average arrival delays are `r names(AvgArrDelay[AvgArrDelay < 0])`.
 
 ### Air Gain
 
 Create a new column named airgain such that airgain = (departure delay - arrival delay) : this is the amount of delay a flight made up while in air.
 
+```{r}
+nyc$airgain <- nyc$dep_delay - nyc$arr_delay
+
+```
+
+
 a) Explore airgain data - calculate suitable descriptive statistics and appropriate graphics to better understand this data. This part is open ended - you do what you feel works best for you.
+
+The average airgain is `r mean(nyc$airgain, na.rm = TRUE)` minutes.
+
+The median airgain is `r median(nyc$airgain, na.rm = TRUE)` minutes.
+
+The standard deviation of airgain is `r sd(nyc$airgain, na.rm = TRUE)`.
+
+
+```{r}
+# Density Plot
+d <- density(nyc$airgain, na.rm = TRUE)
+plot(d, main="Air Gain per flight")
+polygon(d, col="blue", border="yellow")
+
+```
+
+- I couldn't figure out how to add a mean line to this density plot, but I would like to learn.
 
 b) Answer the questions:
 
-  - do airlines actually gain any time when in air on average? 
+  - Do airlines actually gain any time when in air on average? 
+  
+  Airlines gain an average of `r round(mean(nyc$airgain, na.rm = TRUE), 2)` minutes per flight.
 
   - Calculate average airgain for different airlines - which airlines do a better job, which do a worse job? 
+```{r}
+AvgAirGain <- tapply(nyc$airgain, nyc$carrier, mean, na.rm = TRUE)
+AirGainDec <- sort(round(AvgAirGain, 2), decreasing = TRUE)
+AirGainDec
+```
+  The airlines `r names(AirGainDec[AirGainDec > 10])` do a good job of gaining time in the air, at least 10 minutes on average. The airlines `r names(AirGainDec[AirGainDec < 0])` lose time in the air however.
+  
 
   - Build a graphic  of average airgain for different airlines sorted by airgain. We want to graphically visualize which airlines are good at "catching up" when in air and which airlines actually lose time further after taking off.
+```{r}
+barplot(AirGainDec)
+
+```
+
 
 That's it. Once you are done, make sure everything works and knits well and then you can push your changes to the GitHub repo and uplaod the RMD flile and the html output to Canvas.
 
